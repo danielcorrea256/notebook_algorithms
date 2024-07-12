@@ -2,18 +2,29 @@
 /// Tested: https://tinyurl.com/y6upxbpa
 ///to = i - from[i];
 ///len = to - from[i] + 1 = i - 2 * from[i] + 1;
-vector<int> manacher(string &s) {
-  int n = s.size(), p = 0, pr = -1;
-  vector<int> from(2*n-1);
-  for(int i = 0; i < 2*n-1; ++i) {
-    int r = i <= 2*pr ? min(p - from[2*p - i], pr) : i/2;
-    int l = i - r;
-    while(l > 0 && r < n-1 && s[l-1] == s[r+1]) --l, ++r;
-    from[i] = l;
-    if (r > pr) {
-      pr = r;
-      p = i;
+
+vector<int> manacher_odd(string s) {
+    int n = s.size();
+    s = "$" + s + "^";
+    vector<int> p(n + 2);
+    int l = 1, r = 1;
+    for(int i = 1; i <= n; i++) {
+        p[i] = max(0, min(r - i, p[l + (r - i)]));
+        while(s[i - p[i]] == s[i + p[i]]) {
+            p[i]++;
+        }
+        if(i + p[i] > r) {
+            l = i - p[i], r = i + p[i];
+        }
     }
-  }
-  return from;
+    return vector<int>(begin(p) + 1, end(p) - 1);
+}
+
+vector<int> manacher(string s) {
+    string t;
+    for(auto c: s) {
+        t += string("#") + c;
+    }
+    auto res = manacher_odd(t + "#");
+    return vector<int>(begin(res) + 1, end(res) - 1);
 }
